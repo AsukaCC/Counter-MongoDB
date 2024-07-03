@@ -95,14 +95,13 @@ async function renderHome(req, res) {
             max-height: 100%;
           }
           .warp {
-            width: 100%;
+            width: 80%;
             height: 100%;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: antiquewhite;
+            align-items: flex-start;
             flex-direction: column;
             overflow-y:auto;
+            margin: 0 auto;
           }
           .section {
             margin-bottom: 20px;
