@@ -102,6 +102,7 @@ async function renderHome(req, res) {
             align-items: center;
             background-color: antiquewhite;
             flex-direction: column;
+            overflow-y:auto;
           }
           .section {
             margin-bottom: 20px;
