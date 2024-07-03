@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { createCanvas, loadImage } = require('canvas');
+const sharp = require('sharp');
 
 const getImageFile = async (dir, name) => {
   if (!fs.existsSync(dir)) {
@@ -55,36 +55,33 @@ const getImageMimeType = (filePath) => {
 const createImageCanvas = async (filePaths) => {
   const images = await Promise.all(
     filePaths.map(async (p) => {
-      const img = await loadImage(p);
-      if (!img) {
-        throw new Error(`Image not loaded: ${p}`);
-      }
-      return img;
+      const buffer = await sharp(p).toBuffer();
+      return sharp(buffer);
     })
   );
 
-  if (!images || images.length === 0 || !images[0]) {
+  if (!images || images.length === 0) {
     throw new Error('No images loaded');
   }
 
-  const width = images[0].width;
-  const height = images[0].height;
-  const canvas = createCanvas(width * images.length, height);
-  const ctx = canvas.getContext('2d');
-
-  // 清空画布，确保透明背景
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // 绘制每个GIF图像到画布
-  images.forEach((img, index) => {
-    if (img) {
-      ctx.drawImage(img, index * width, 0, width, height);
-    } else {
-      throw new Error(`Image at index ${index} is undefined`);
-    }
+  const { width, height } = await images[0].metadata();
+  const compositeImage = sharp({
+    create: {
+      width: width * images.length,
+      height: height,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
   });
 
-  return canvas;
+  const composites = images.map((img, index) => ({
+    input: img.toBuffer(),
+    top: 0,
+    left: index * width,
+  }));
+
+  await compositeImage.composite(composites).toFile('output.png');
+  return 'output.png';
 };
 
 module.exports = {
