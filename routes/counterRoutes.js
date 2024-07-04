@@ -28,31 +28,39 @@ router.get('/:name', async (req, res) => {
   }
 
   try {
-    let counter = await Counter.findOne({ name, type: themeType });
+    let counter = await Counter.findOne({ name });
     if (counter) {
       // 如果name和type存在，则将count加一
       counter.count += 1;
     } else {
       // 如果name和type不存在，则初始化一个新的记录
-      counter = new Counter({ name, type: themeType, count: 1 });
+      counter = new Counter({ name, count: 1 });
     }
     const result = await counter.save();
     // @ts-ignore
     const countStr = result.count.toString().padStart(DIGIT_LENGTH, '0');
 
+    const themeDir = path.join(__dirname, `../assets/theme/${themeType}`);
+
     const gifPaths = [];
     for (let char of countStr) {
-      const gifPath = path.join(
-        __dirname,
-        `../assets/theme/${themeType}/${char}.gif`
-      );
-      gifPaths.push(gifPath);
-    }
+      const files = fs.readdirSync(themeDir);
+      const matchingFile = files.find((file) => file.startsWith(char));
 
+      if (matchingFile) {
+        const gifPath = path.join(themeDir, matchingFile);
+        gifPaths.push(gifPath);
+      } else {
+        console.error(
+          `No matching file found for digit ${char} in theme ${themeType}`
+        );
+      }
+    }
     const canvas = await createImageCanvas(gifPaths);
     const filePath = gifPaths[0];
     const mimeType = getImageMimeType(filePath);
 
+    res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Type', mimeType);
     canvas.createPNGStream().pipe(res);
   } catch (error) {

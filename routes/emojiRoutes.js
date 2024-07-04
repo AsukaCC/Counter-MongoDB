@@ -8,23 +8,21 @@ const router = express.Router();
 const emojiDir = path.join(__dirname, '../assets/emoji');
 
 router.get('/:name?', async (req, res) => {
-  const { name } = req.params;
+  let { name } = req.params;
 
   try {
-    let filePath;
-    if (name) {
-      // 传入了文件名参数
-      filePath = await getImageFile(emojiDir, name);
-    } else {
+    if (!name) {
       // 未传入文件名参数，随机返回一个图片
       const files = fs.readdirSync(emojiDir);
       if (files.length === 0) {
         throw new Error('No images found');
       }
       const randomFile = files[Math.floor(Math.random() * files.length)];
-      filePath = path.join(emojiDir, randomFile);
+      return res.redirect(`/api/emoji/${randomFile}`);
     }
 
+    // 传入了文件名参数
+    const filePath = await getImageFile(emojiDir, name);
     const mimeType = getImageMimeType(filePath);
     res.setHeader('Content-Type', mimeType);
     res.sendFile(filePath);

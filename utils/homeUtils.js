@@ -85,6 +85,9 @@ async function renderHome(req, res) {
           body {
             width: 100vw;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y:auto;
             margin: 0;
             padding: 0;
           }
@@ -100,7 +103,6 @@ async function renderHome(req, res) {
             display: flex;
             align-items: flex-start;
             flex-direction: column;
-            overflow-y:auto;
             margin: 0 auto;
           }
           .section {
