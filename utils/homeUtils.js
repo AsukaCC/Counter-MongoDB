@@ -109,6 +109,10 @@ async function renderHome(req, res) {
           .section {
             margin-bottom: 20px;
           }
+          #emoji-dynamic-img {
+            max-height: 300px;
+            max-width: 300px;
+          }
         </style>
       </head>
       <body>

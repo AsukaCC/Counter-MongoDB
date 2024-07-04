@@ -1,6 +1,33 @@
 const path = require('path');
 const fs = require('fs');
-const { createCanvas, loadImage } = require('canvas');
+const mimeType = require('mime-types');
+const sizeOf = require('image-size');
+
+const themePath = path.resolve(__dirname, '../assets/theme');
+
+const themeList = {};
+
+fs.readdirSync(themePath).forEach((theme) => {
+  if (!(theme in themeList)) themeList[theme] = {};
+  const imgList = fs.readdirSync(path.resolve(themePath, theme));
+  imgList.forEach((img) => {
+    const imgPath = path.resolve(themePath, theme, img);
+    const name = path.parse(img).name;
+    const { width, height } = sizeOf(imgPath);
+
+    themeList[theme][name] = {
+      width,
+      height,
+      data: convertToDatauri(imgPath),
+    };
+  });
+});
+
+function convertToDatauri(filePath) {
+  const mime = mimeType.lookup(filePath);
+  const base64 = fs.readFileSync(filePath).toString('base64');
+  return `data:${mime};base64,${base64}`;
+}
 
 const getImageFile = async (dir, name) => {
   if (!fs.existsSync(dir)) {
@@ -37,58 +64,43 @@ const getImageFile = async (dir, name) => {
   return filePath;
 };
 
-const getImageMimeType = (filePath) => {
-  const ext = path.extname(filePath).toLowerCase();
-  switch (ext) {
-    case '.gif':
-      return 'image/gif';
-    case '.png':
-      return 'image/png';
-    case '.jpg':
-    case '.jpeg':
-      return 'image/jpeg';
-    default:
-      return 'application/octet-stream';
-  }
-};
-
 const createImageCanvas = async (filePaths) => {
-  const images = await Promise.all(
-    filePaths.map(async (p) => {
-      const img = await loadImage(p);
-      if (!img) {
-        throw new Error(`Image not loaded: ${p}`);
-      }
-      return img;
-    })
-  );
-
-  if (!images || images.length === 0 || !images[0]) {
-    throw new Error('No images loaded');
-  }
-
-  const width = images[0].width;
-  const height = images[0].height;
-  const canvas = createCanvas(width * images.length, height);
-  const ctx = canvas.getContext('2d');
-
-  // 清空画布，确保透明背景
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // 绘制每个GIF图像到画布
-  images.forEach((img, index) => {
-    if (img) {
-      ctx.drawImage(img, index * width, 0, width, height);
-    } else {
-      throw new Error(`Image at index ${index} is undefined`);
-    }
-  });
-
-  return canvas;
+  const svg = getSvgImage(filePaths);
+  return svg;
 };
+
+// 新增生成SVG的方法
+function getSvgImage(filePaths) {
+  if (filePaths != '' && !Array.isArray(filePaths)) {
+    filePaths = [filePaths];
+  }
+  let x = 0,
+    y = 0;
+  const parts = filePaths.map((item) => {
+    const { width, height } = sizeOf(item);
+    const data = convertToDatauri(item);
+
+    const image = `${item}
+      <image x="${x}" y="0" width="${width}" height="${height}" xlink:href="${data}" />`;
+
+    x += width;
+    if (height > y) y = height;
+
+    return image;
+  }, '');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${x}" height="${y}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
+    <title>Moe Count</title>
+    <g>
+      ${parts}
+    </g>
+</svg>
+  `;
+}
 
 module.exports = {
   getImageFile,
-  getImageMimeType,
   createImageCanvas,
+  getSvgImage,
 };

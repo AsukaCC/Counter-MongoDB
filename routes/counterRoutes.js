@@ -2,7 +2,7 @@ const express = require('express');
 const Counter = require('../models/getCounter');
 const path = require('path');
 const fs = require('fs');
-const { getImageMimeType, createImageCanvas } = require('../utils/imageUtils');
+const { createImageCanvas } = require('../utils/imageUtils');
 
 const router = express.Router();
 const DIGIT_LENGTH = process.env.COUNTER_LENGTH || 6; // 配置位数
@@ -56,13 +56,9 @@ router.get('/:name', async (req, res) => {
         );
       }
     }
-    const canvas = await createImageCanvas(gifPaths);
-    const filePath = gifPaths[0];
-    const mimeType = getImageMimeType(filePath);
-
-    res.setHeader('Content-Type', mimeType);
-    res.setHeader('Content-Type', mimeType);
-    canvas.createPNGStream().pipe(res);
+    const svg = await createImageCanvas(gifPaths);
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svg);
   } catch (error) {
     console.error('Error processing counter:', error);
     res.status(500).json({

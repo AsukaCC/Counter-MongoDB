@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { getImageFile, getImageMimeType } = require('../utils/imageUtils');
+const { getImageFile, getSvgImage } = require('../utils/imageUtils');
 
 const router = express.Router();
 
@@ -23,9 +23,9 @@ router.get('/:name?', async (req, res) => {
 
     // 传入了文件名参数
     const filePath = await getImageFile(emojiDir, name);
-    const mimeType = getImageMimeType(filePath);
-    res.setHeader('Content-Type', mimeType);
-    res.sendFile(filePath);
+    const svg = getSvgImage(filePath);
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svg);
   } catch (error) {
     console.error('Error processing emoji:', error);
     res.status(500).json({
