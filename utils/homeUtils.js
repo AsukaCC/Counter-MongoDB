@@ -88,6 +88,7 @@ async function renderHome(req, res) {
             display: flex;
             flex-direction: column;
             overflow-y:auto;
+            overflow-x:hidden;
             margin: 0;
             padding: 0;
           }
