@@ -11,7 +11,6 @@ class RedisStore {
   async ipIncr(key) {
     const redisKey = `${key}${this.prefix}`;
     const count = await this.client.incr(redisKey);
-    console.log(`🚀 ~ count:`, count);
     if (count === 1) {
       await this.client.expire(redisKey, this.expiry); // 设置过期时间
     }
@@ -66,8 +65,12 @@ const rateLimiter = async (req, res, next) => {
     prefix: 'ipLimit',
     expiry: limitDurationInSeconds,
   });
+
   const key = req.ip;
-  console.log('🚀 ~ ip:', key);
+  const requestDomain = req.hostname;
+
+  // 打印请求的 IP 地址和域名
+  console.log(`Request received from IP: ${key}, Domain: ${requestDomain}`);
 
   // 从环境变量中获取限制次数
   const rateLimit = parseInt(process.env.RATE_LIMIT, 10) || 10;
