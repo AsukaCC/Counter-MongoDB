@@ -77,20 +77,9 @@ const rateLimiter = async (req, res, next) => {
     ? process.env.WHITELIST.split(',')
     : [];
 
-  // 从环境变量中获取域名白名单并解析为数组
-  const domainWhitelist = process.env.DOMAIN_WHITELIST
-    ? process.env.DOMAIN_WHITELIST.split(',')
-    : [];
-
   // 检查IP是否在白名单中
   if (ipWhitelist.includes(key)) {
     return next(); // 如果在IP白名单中，跳过限制检查
-  }
-
-  // 检查域名是否在白名单中
-  const requestDomain = req.hostname;
-  if (domainWhitelist.includes(requestDomain)) {
-    return next(); // 如果在域名白名单中，跳过限制检查
   }
 
   const count = await store.ipIncr(key);
