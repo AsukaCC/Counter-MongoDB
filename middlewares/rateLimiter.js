@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const redisClient = require('../redis/redisClient');
 require('dotenv').config();
 
@@ -52,6 +54,25 @@ const formatTimeChinese = (seconds) => {
   }
 };
 
+const logRequest = (ip, origin) => {
+  const now = new Date();
+  const timestamp = now.toISOString().replace('T', ' ').substring(0, 19);
+  const logMessage = `${timestamp} - ${origin} - ${ip}\n`;
+  const logDirectory = path.join(__dirname, '..', 'log');
+  const logFilePath = path.join(logDirectory, 'access.log');
+
+  // 检查并创建log文件夹
+  if (!fs.existsSync(logDirectory)) {
+    fs.mkdirSync(logDirectory, { recursive: true });
+  }
+
+  fs.appendFile(logFilePath, logMessage, (err) => {
+    if (err) {
+      console.error('Failed to write to log file', err);
+    }
+  });
+};
+
 // 自定义中间件记录访问次数
 const rateLimiter = async (req, res, next) => {
   const separator = '====================';
@@ -85,6 +106,9 @@ const rateLimiter = async (req, res, next) => {
   console.log(
     `${separator}\nRequest received from IP: ${ipAddress}, Origin: ${parsedOrigin}\n${separator}`
   );
+
+  // 记录日志到文件
+  logRequest(ipAddress, parsedOrigin);
 
   // 从环境变量中获取限制次数
   const rateLimit = parseInt(process.env.RATE_LIMIT, 10) || 10;
@@ -135,7 +159,28 @@ const rateLimiter = async (req, res, next) => {
         message_zh: '此IP地址的访问被禁止',
       });
     }
-    // 如果域名在白名单，IP不在黑名单，则允许访问
+    // 检查IP是否在白名单中
+    if (ipWhitelist.includes(ipAddress)) {
+      console.log(
+        `${separator}\nIP ${ipAddress} is in the whitelist.\n${separator}`
+      );
+      return next(); // 如果在IP白名单中，跳过限制检查
+    }
+    // 对不在黑名单和白名单的IP进行正常的限制检查
+    const count = await store.ipIncr(ipAddress);
+    // 检查访问次数
+    if (count > rateLimit) {
+      const ttl = await store.ipGetTTL(ipAddress);
+      const timeRemaining = formatTime(ttl);
+      const timeRemainingChinese = formatTimeChinese(ttl);
+      console.log('请求过多');
+      return res.status(429).json({
+        code: 429,
+        error: 'Too many requests',
+        message: `Too many requests - try again in ${timeRemaining}`,
+        message_zh: `请求过多 - 请在 ${timeRemainingChinese} 后重试`,
+      });
+    }
     return next();
   }
 
@@ -152,19 +197,7 @@ const rateLimiter = async (req, res, next) => {
     });
   }
 
-  // 如果域名不在白名单且IP不在黑名单，检查IP是否在白名单中
-  if (ipWhitelist.includes(ipAddress)) {
-    console.log(
-      `${separator}\nIP ${ipAddress} is in the whitelist.\n${separator}`
-    );
-    return next(); // 如果在IP白名单中，跳过限制检查
-  }
-
-  console.log(
-    `${separator}\nIP ${ipAddress} is not in the whitelist or blacklist.\n${separator}`
-  );
-
-  // 对于其他请求，继续进行限制检查
+  // 对于其他请求（域名不在白名单），进行正常的限制检查
   const count = await store.ipIncr(ipAddress);
 
   // 检查访问次数
