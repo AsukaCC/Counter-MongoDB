@@ -1,8 +1,10 @@
+在原来版本上添加了拓展功能
+
 # 安装
 
 npm i | yarn
 
-# 变量配置 
+# 变量配置
 
 .evn 中配置
 
@@ -20,9 +22,9 @@ https://github.com/journey-ad/Moe-Counter
 
 # 计数器
 
-计数器添加主题直接将主题放在assets/theme下,后缀图片即可
+计数器添加主题直接将主题放在 assets/theme 下,后缀图片即可
 
 #表情图片
 
-添加图片放在 assets/emoji下即可
+添加图片放在 assets/emoji 下即可
 ps:文件名唯一
