@@ -8,6 +8,10 @@ npm i | yarn
 
 .evn 中配置
 
+MongoDB 数据库
+
+Redis 缓存
+
 # 启动
 
 node app.js
