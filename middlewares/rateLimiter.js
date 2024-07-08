@@ -54,6 +54,8 @@ const formatTimeChinese = (seconds) => {
 
 // 自定义中间件记录访问次数
 const rateLimiter = async (req, res, next) => {
+  const separator = '====================';
+
   // 从环境变量中获取限制时间，并转换为秒
   const limitDuration = parseInt(process.env.LIMIT_DURATION, 10);
   const limitDurationInSeconds = isNaN(limitDuration)
@@ -66,37 +68,117 @@ const rateLimiter = async (req, res, next) => {
     expiry: limitDurationInSeconds,
   });
 
-  const key = req.ip;
-  const requestDomain = req.hostname;
+  // 获取原始客户端 IP 地址
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const ipAddress = forwardedFor
+    ? forwardedFor.split(',').shift()
+    : req.connection.remoteAddress;
 
-  // 打印请求的 IP 地址和域名
-  console.log(`Request received from IP: ${key}, Domain: ${requestDomain}`);
+  // 获取请求来源
+  const originHost = req.headers.host || '无法解析来源域名';
+  const origin = req.headers.origin || req.headers.referer || '';
+
+  // 解析来源域名
+  const parsedOrigin = origin ? new URL(origin).hostname : originHost;
+
+  // 打印请求的 IP 地址和来源
+  console.log(
+    `${separator}\nRequest received from IP: ${ipAddress}, Origin: ${parsedOrigin}\n${separator}`
+  );
 
   // 从环境变量中获取限制次数
   const rateLimit = parseInt(process.env.RATE_LIMIT, 10) || 10;
 
-  // 从环境变量中获取IP白名单并解析为数组
-  const ipWhitelist = process.env.WHITELIST
-    ? process.env.WHITELIST.split(',')
+  // 从环境变量中获取IP白名单和黑名单并解析为数组
+  const ipWhitelist = process.env.WHITELIST_IPS
+    ? process.env.WHITELIST_IPS.split(',')
+    : [];
+  const ipBlacklist = process.env.BLACKLIST_IPS
+    ? process.env.BLACKLIST_IPS.split(',')
     : [];
 
-  // 检查IP是否在白名单中
-  if (ipWhitelist.includes(key)) {
+  // 从环境变量中获取允许的来源和拒绝的来源并解析为数组
+  const allowedOrigins = process.env.WHITELIST_ORIGINS
+    ? process.env.WHITELIST_ORIGINS.split(',')
+    : [];
+  const blockedOrigins = process.env.BLACKLIST_ORIGINS
+    ? process.env.BLACKLIST_ORIGINS.split(',')
+    : [];
+
+  // 检查请求来源是否在黑名单中
+  if (blockedOrigins.includes(parsedOrigin)) {
+    console.log(
+      `${separator}\nOrigin ${parsedOrigin} is in the blacklist.\n${separator}`
+    );
+    return res.status(403).json({
+      code: 403,
+      error: 'Forbidden',
+      message: 'Access from this origin is forbidden',
+      message_zh: '不允许从此来源访问',
+    });
+  }
+
+  // 检查请求来源是否在白名单中
+  if (allowedOrigins.includes(parsedOrigin)) {
+    console.log(
+      `${separator}\nOrigin ${parsedOrigin} is in the whitelist.\n${separator}`
+    );
+    // 检查IP是否在黑名单中
+    if (ipBlacklist.includes(ipAddress)) {
+      console.log(
+        `${separator}\nIP ${ipAddress} is in the blacklist.\n${separator}`
+      );
+      return res.status(403).json({
+        code: 403,
+        error: 'Forbidden',
+        message: 'Access from this IP address is forbidden',
+        message_zh: '此IP地址的访问被禁止',
+      });
+    }
+    // 如果域名在白名单，IP不在黑名单，则允许访问
+    return next();
+  }
+
+  // 如果域名不在白名单，检查IP是否在黑名单中
+  if (ipBlacklist.includes(ipAddress)) {
+    console.log(
+      `${separator}\nIP ${ipAddress} is in the blacklist.\n${separator}`
+    );
+    return res.status(403).json({
+      code: 403,
+      error: 'Forbidden',
+      message: 'Access from this IP address is forbidden',
+      message_zh: '此IP地址的访问被禁止',
+    });
+  }
+
+  // 如果域名不在白名单且IP不在黑名单，检查IP是否在白名单中
+  if (ipWhitelist.includes(ipAddress)) {
+    console.log(
+      `${separator}\nIP ${ipAddress} is in the whitelist.\n${separator}`
+    );
     return next(); // 如果在IP白名单中，跳过限制检查
   }
 
-  const count = await store.ipIncr(key);
+  console.log(
+    `${separator}\nIP ${ipAddress} is not in the whitelist or blacklist.\n${separator}`
+  );
+
+  // 对于其他请求，继续进行限制检查
+  const count = await store.ipIncr(ipAddress);
 
   // 检查访问次数
   if (count > rateLimit) {
-    const ttl = await store.ipGetTTL(key);
+    const ttl = await store.ipGetTTL(ipAddress);
     const timeRemaining = formatTime(ttl);
     const timeRemainingChinese = formatTimeChinese(ttl);
-    return res
-      .status(429)
-      .send(
-        `Too many requests - try again in ${timeRemaining}\n请求过多 - 请在 ${timeRemainingChinese} 后重试`
-      );
+    console.log('请求过多');
+    return res.status(429).json({
+      code: 429,
+      error: 'Too many requests',
+      message: `Too many requests - try again in ${timeRemaining}`,
+      message_zh: `请求过多 - 请在 ${timeRemainingChinese} 后重试`,
+    });
   }
 
   next();
