@@ -1,7 +1,4 @@
 node_modules/
 dist/
-<<<<<<< HEAD
 log/
-=======
 .env
->>>>>>> 087975d (update)
