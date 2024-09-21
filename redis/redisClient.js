@@ -1,4 +1,5 @@
-require('dotenv').config();
+const loadEnv = require('../config/load_env');
+loadEnv();
 const redis = require('redis');
 
 const client = redis.createClient({
