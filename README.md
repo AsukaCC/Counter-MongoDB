@@ -20,7 +20,7 @@ node app.js
 
 http://localhost:3000/api-docs/#/
 
-# 原版
+# 基于
 
 https://github.com/journey-ad/Moe-Counter
 
