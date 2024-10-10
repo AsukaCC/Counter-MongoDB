@@ -6,6 +6,7 @@
     "image-size": "^1.1.1",
     "mongoose": "^8.4.4",
     "redis": "^4.6.15",
+    "mime-types": "^2.1.35",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui": "^5.17.14",
     "swagger-ui-express": "^5.0.1"
