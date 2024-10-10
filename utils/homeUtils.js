@@ -132,18 +132,18 @@ async function renderHome(req, res) {
             <p id="counter-result-path"></p>
             <img id="counter-dynamic-img" src="" alt="Counter Image" />
           </div>
-          <div class="section">
-            <h1>表情符号</h1>
-            <div id="api-description">
-              <h2>API 参数说明 (API Parameter Explanation)</h2>
-              <p><strong>name:</strong> 表情名称，可不传。</p>
-            </div>
-            <label for="emoji-name-input">Name: </label>
-            <input type="text" id="emoji-name-input" placeholder="Enter emoji name" />
-            <button id="emoji-generate-btn">Generate URL</button>
-            <p id="emoji-result-path"></p>
-            <img id="emoji-dynamic-img" src="" alt="Emoji Image" />
-          </div>
+          // <div class="section">
+          //   <h1>表情符号</h1>
+          //   <div id="api-description">
+          //     <h2>API 参数说明 (API Parameter Explanation)</h2>
+          //     <p><strong>name:</strong> 表情名称，可不传。</p>
+          //   </div>
+          //   <label for="emoji-name-input">Name: </label>
+          //   <input type="text" id="emoji-name-input" placeholder="Enter emoji name" />
+          //   <button id="emoji-generate-btn">Generate URL</button>
+          //   <p id="emoji-result-path"></p>
+          //   <img id="emoji-dynamic-img" src="" alt="Emoji Image" />
+          // </div>
         </div>
       </body>
       </html>
