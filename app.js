@@ -30,12 +30,8 @@ app.use((req, res, next) => {
 });
 
 // 使用记录访问次数的中间件
-app.use('/api/counter', rateLimiter, counterRoutes);
+app.use('/counter', rateLimiter, counterRoutes);
 app.use('/api/emoji', rateLimiter, emojiRoutes);
-
-// 使用路由模块
-app.use('/api/counter', counterRoutes);
-app.use('/api/emoji', emojiRoutes);
 
 // 在根路径加载index.html并渲染文件夹名列表
 app.get('/', renderHome);

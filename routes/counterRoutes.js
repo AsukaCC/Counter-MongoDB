@@ -17,6 +17,14 @@ const getDefaultTheme = () => {
 };
 
 router.get('/:name', async (req, res) => {
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate'
+  );
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+
   const { name } = req.params;
   const { type } = req.query;
   const themeType = type || getDefaultTheme();
@@ -30,14 +38,11 @@ router.get('/:name', async (req, res) => {
   try {
     let counter = await Counter.findOne({ name });
     if (counter) {
-      // 如果name和type存在，则将count加一
       counter.count += 1;
     } else {
-      // 如果name和type不存在，则初始化一个新的记录
       counter = new Counter({ name, count: 1 });
     }
     const result = await counter.save();
-    // @ts-ignore
     const countStr = result.count.toString().padStart(DIGIT_LENGTH, '0');
 
     const themeDir = path.join(__dirname, `../assets/theme/${themeType}`);
@@ -57,16 +62,7 @@ router.get('/:name', async (req, res) => {
       }
     }
     const svg = await createImageCanvas(gifPaths);
-
-    // 设置响应头以避免缓存
     res.setHeader('Content-Type', 'image/svg+xml');
-    res.setHeader(
-      'Cache-Control',
-      'no-store, no-cache, must-revalidate, proxy-revalidate'
-    );
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-
     res.send(svg);
   } catch (error) {
     console.error('Error processing counter:', error);

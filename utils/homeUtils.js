@@ -45,7 +45,7 @@ async function renderHome(req, res) {
               }
               const selectedTheme = counterSelect.value;
               const baseUrl = window.location.origin;
-              const url = \`\${baseUrl}/api/counter/\${name}?type=\${selectedTheme}\`;
+              const url = \`\${baseUrl}/counter/\${name}?type=\${selectedTheme}\`;
               counterResult.textContent = url;
               counterImg.src = url;
             };

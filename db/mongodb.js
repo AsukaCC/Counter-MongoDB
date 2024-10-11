@@ -3,8 +3,7 @@ const loadEnv = require('../config/load_env');
 loadEnv();
 
 const connectDB = async () => {
-  const mongoUri =
-    process.env.MONGODB_URI || 'mongodb://localhost:27017/<your-dataBaseName>';
+  const mongoUri = process.env.MONGODB_URI;
   try {
     await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
