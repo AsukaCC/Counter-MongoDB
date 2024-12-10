@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 // 使用记录访问次数的中间件
-app.use('/counter', rateLimiter, counterRoutes);
+app.use('/api/counter', rateLimiter, counterRoutes);
 app.use('/api/emoji', rateLimiter, emojiRoutes);
 
 
