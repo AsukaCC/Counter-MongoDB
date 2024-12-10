@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API 演示</title>
+    <script>
+      const baseUrl = 'http://localhost:8081';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const themes = [
+          'asoul',
+          'gelbooru',
+          'gelbooru-h',
+          'moebooru',
+          'moebooru-h',
+          'rule34',
+        ];
+
+        const counterSection = document.querySelector('#counter-section');
+
+        const elements = {
+          counter: {
+            input: counterSection.querySelector('#counter-name-input'),
+            select: counterSection.querySelector('#counter-theme-select'),
+            button: counterSection.querySelector('#counter-generate-btn'),
+            result: counterSection.querySelector('#counter-result-path'),
+            img: counterSection.querySelector('#counter-dynamic-img'),
+          },
+        };
+
+        // Populate the theme select
+        themes.forEach((theme) => {
+          const option = document.createElement('option');
+          option.value = theme;
+          option.textContent = theme;
+          elements.counter.select.appendChild(option);
+        });
+
+        // Generate Counter URL
+        const generateCounterUrl = () => {
+          let name = elements.counter.input.value.trim();
+          if (!name) {
+            name = 'test';
+            elements.counter.input.value = name;
+          }
+          const selectedTheme = elements.counter.select.value;
+          const url = `${baseUrl}/counter/${name}?type=${selectedTheme}`;
+          elements.counter.result.textContent = url;
+          elements.counter.img.src = url;
+        };
+
+        // Initial URL generation
+        generateCounterUrl();
+
+        // Event listeners
+        elements.counter.button.addEventListener('click', generateCounterUrl);
+      });
+    </script>
+    <style>
+      /* Reset and base styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+      }
+
+      /* Layout */
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .section {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .section h1 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      .section label {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .section input,
+      .section select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .section button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .section button:hover {
+        background-color: #0056b3;
+      }
+
+      .section p {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 10px;
+      }
+
+      #counter-dynamic-img {
+        min-width: 100px;
+        height: 100px; /* 固定高度为 300px */
+        object-fit: contain; /* 如果图片尺寸不符，裁剪超出的部分 */
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 4px;
+        margin-top: 10px;
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Counter Section -->
+      <div id="counter-section" class="section">
+        <h1>计数器</h1>
+        <label for="counter-name-input">名称：</label>
+        <input type="text" id="counter-name-input" placeholder="请输入名称" />
+        <label for="counter-theme-select">主题：</label>
+        <select id="counter-theme-select"></select>
+        <button id="counter-generate-btn">生成 URL</button>
+        <p id="counter-result-path"></p>
+        <img id="counter-dynamic-img" src="" alt="计数器图片" />
+      </div>
+    </div>
+  </body>
+</html>

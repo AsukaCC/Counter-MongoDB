@@ -4,7 +4,6 @@ const counterRoutes = require('./routes/counterRoutes');
 const emojiRoutes = require('./routes/emojiRoutes');
 const setHeaders = require('./middlewares/setHeaders');
 const path = require('path');
-const { renderHome } = require('./utils/homeUtils');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const rateLimiter = require('./middlewares/rateLimiter'); // 引入修改后的速率限制中间件
@@ -33,8 +32,6 @@ app.use((req, res, next) => {
 app.use('/counter', rateLimiter, counterRoutes);
 app.use('/api/emoji', rateLimiter, emojiRoutes);
 
-// 在根路径加载index.html并渲染文件夹名列表
-app.get('/', renderHome);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
