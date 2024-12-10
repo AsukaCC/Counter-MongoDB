@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>API 演示</title>
     <script>
-      const baseUrl = 'http://localhost:8081';
+      const baseUrl = 'https://counter.jiangcheng.site';
 
       document.addEventListener('DOMContentLoaded', () => {
         const themes = [
@@ -45,7 +45,7 @@
             elements.counter.input.value = name;
           }
           const selectedTheme = elements.counter.select.value;
-          const url = `${baseUrl}/counter/${name}?type=${selectedTheme}`;
+          const url = `${baseUrl}/api/counter/${name}?type=${selectedTheme}`;
           elements.counter.result.textContent = url;
           elements.counter.img.src = url;
         };
