@@ -3,7 +3,7 @@ const loadEnv = require('../config/load_env');
 loadEnv();
 
 const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
+  const mongoUri = `mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DATABASE}?authSource=admin`;
   try {
     await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
