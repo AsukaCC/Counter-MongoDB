@@ -1,9 +1,10 @@
+const redis = require('redis');
 const loadEnv = require('../config/load_env');
 loadEnv();
-const redis = require('redis');
 
 const client = redis.createClient({
   password: process.env.REDIS_PASSWORD,
+  username: process.env.REDIS_USERNAME,
   socket: {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
@@ -11,20 +12,15 @@ const client = redis.createClient({
 });
 
 client.on('error', (err) => {
-  console.log('Redis error: ', err);
+  console.error('Redis 发生错误:', err);
 });
 
 client.on('connect', () => {
-  console.log('Connected to Redis');
+  console.log('Redis 连接成功');
 });
 
-client
-  .connect()
-  .then(() => {
-    console.log('Redis client connected');
-  })
-  .catch((err) => {
-    console.error('Failed to connect to Redis', err);
-  });
+client.on('end', () => {
+  console.log('Redis 连接已关闭');
+});
 
 module.exports = client;
