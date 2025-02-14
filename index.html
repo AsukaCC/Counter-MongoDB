@@ -7,16 +7,19 @@
     <script>
       const baseUrl = 'https://counter.jiangcheng.site';
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const themes = [
-          'asoul',
-          'gelbooru',
-          'gelbooru-h',
-          'moebooru',
-          'moebooru-h',
-          'rule34',
-        ];
+      // 从服务器获取主题列表
+      async function getThemes() {
+        try {
+          const response = await fetch('/api/themes');
+          const data = await response.json();
+          return data.themes;
+        } catch (error) {
+          console.error('获取主题列表失败:', error);
+          return [];
+        }
+      }
 
+      document.addEventListener('DOMContentLoaded', async () => {
         const counterSection = document.querySelector('#counter-section');
 
         const elements = {
@@ -29,7 +32,8 @@
           },
         };
 
-        // Populate the theme select
+        // 获取并填充主题选择器
+        const themes = await getThemes();
         themes.forEach((theme) => {
           const option = document.createElement('option');
           option.value = theme;
@@ -160,7 +164,9 @@
         <label for="counter-name-input">名称：</label>
         <input type="text" id="counter-name-input" placeholder="请输入名称" />
         <label for="counter-theme-select">主题：</label>
-        <select id="counter-theme-select"></select>
+        <select id="counter-theme-select">
+          <option value="" disabled selected>选择主题</option>
+        </select>
         <button id="counter-generate-btn">生成 URL</button>
         <p id="counter-result-path"></p>
         <img id="counter-dynamic-img" src="" alt="计数器图片" />

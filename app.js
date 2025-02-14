@@ -7,6 +7,7 @@ const path = require('path');
 const { createRateLimiter } = require('./middlewares/rateLimiter');
 const createRedisClient = require('./redis/redisClient');
 const loadEnv = require('./config/load_env');
+const { getThemes } = require('./utils/themeUtils');
 
 loadEnv();
 
@@ -31,6 +32,12 @@ async function startServer() {
 
     // 创建限流中间件
     const rateLimiter = createRateLimiter(redisClient);
+
+    // 添加主题列表 API
+    app.get('/api/themes', (req, res) => {
+      const themes = getThemes();
+      res.json({ themes });
+    });
 
     // 使用记录访问次数的中间件
     app.use('/api/counter', rateLimiter, counterRoutes);
