@@ -1,36 +1,53 @@
-# 安装
+# Counter-MongoDB
 
-npm i | yarn
+计数器，基于 [Moe-Counter](https://github.com/journey-ad/Moe-Counter)
 
-# 变量配置
+添加了调用限制
 
-.evn 中配置
+## 功能特点
 
-MongoDB 数据库
+- 支持自定义主题
+- 使用 MongoDB 存储数据
+- Redis 缓存支持
+- Docker 部署支持
 
-Redis 缓存
+## 快速开始
 
-# docker 启动 mongo 数据库 和 redis，可以使用本地数据库
+### 安装依赖
 
+```bash
+# 使用 npm
+npm install
+
+# 或使用 yarn
+yarn
+```
+
+### 环境配置
+
+在项目根目录创建 `.env` 文件，配置以下必要参数：
+
+- MongoDB 数据库连接信息
+- Redis 缓存配置
+
+### 启动服务
+
+#### 启动 MongoDB 和 Redis：
+
+```bash
 docker-compose up -d
+```
 
-# pm2 启动
+#### 运行
 
+```bash
+# 使用 PM2 启动（推荐生产环境）
 pm2 start ecosystem.config.js
 
-# 直接启动
-
+# 或直接启动
 node app.js
+```
 
-# 基于
+## 自定义主题
 
-https://github.com/journey-ad/Moe-Counter
-
-# 计数器
-
-计数器添加主题直接将主题放在 assets/theme 下,后缀图片即可
-
-#表情图片
-
-添加图片放在 assets/emoji 下即可
-ps:文件名唯一
+要添加新主题，只需将主题图片文件放置在 `assets/theme` 目录下即可。
