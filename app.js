@@ -1,11 +1,14 @@
 const express = require('express');
-const connectDB = require('./db/mongodb');
+const connectDB = require('./mongodb/mongodb');
 const counterRoutes = require('./routes/counterRoutes');
 const emojiRoutes = require('./routes/emojiRoutes');
 const setHeaders = require('./middlewares/setHeaders');
 const path = require('path');
 const rateLimiter = require('./middlewares/rateLimiter'); // 引入修改后的速率限制中间件
 const redisClient = require('./redis/redisClient');
+const loadEnv = require('./config/load_env');
+
+loadEnv();
 
 const app = express();
 

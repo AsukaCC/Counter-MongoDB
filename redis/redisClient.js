@@ -1,6 +1,4 @@
 const redis = require('redis');
-const loadEnv = require('../config/load_env');
-loadEnv();
 
 const client = redis.createClient({
   password: process.env.REDIS_PASSWORD,

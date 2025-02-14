@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const redisClient = require('../redis/redisClient');
-const loadEnv = require('../config/load_env');
-loadEnv();
 
 class RedisStore {
   constructor(options) {

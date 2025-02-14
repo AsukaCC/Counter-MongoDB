@@ -4,18 +4,19 @@ services:
   redis:
     image: redis:latest
     container_name: counter-redis
+    command: redis-server --requirepass root123123 --user root on >root123123 ~* +@all
+    ports:
+      - '6379:6379'
     environment:
       - REDIS_USERNAME=root
       - REDIS_PASSWORD=root123123
-    ports:
-      - '6379:6379'
     volumes:
       - redis_data:/data
-    network_mode: 'host'
 
   mongodb:
     image: mongo:latest
     container_name: counter-mongodb
+    command: mongod --bind_ip_all
     ports:
       - '27017:27017'
     volumes:
@@ -23,7 +24,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root123123
-    network_mode: 'host'
 
 volumes:
   redis_data:
