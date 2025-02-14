@@ -4,11 +4,11 @@ services:
   redis:
     image: redis:latest
     container_name: counter-redis
-    command: redis-server --requirepass root123123 --user root on >root123123 ~* +@all
+    command: redis-server --requirepass root123123
     ports:
       - '6379:6379'
     environment:
-      - REDIS_USERNAME=root
+      - REDIS_USERNAME=default
       - REDIS_PASSWORD=root123123
     volumes:
       - redis_data:/data

@@ -1,5 +1,3 @@
-在原来版本上添加了拓展功能
-
 # 安装
 
 npm i | yarn
@@ -12,13 +10,17 @@ MongoDB 数据库
 
 Redis 缓存
 
-# 启动
+# docker 启动 mongo 数据库 和 redis，可以使用本地数据库
+
+docker-compose up -d
+
+# pm2 启动
+
+pm2 start ecosystem.config.js
+
+# 直接启动
 
 node app.js
-
-# api-doc
-
-http://localhost:3000/api-docs/#/
 
 # 基于
 
