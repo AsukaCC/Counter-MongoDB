@@ -34,10 +34,17 @@
 
         // 获取并填充主题选择器
         const themes = await getThemes();
-        themes.forEach((theme) => {
+        // 清空选择器
+        elements.counter.select.innerHTML = '';
+
+        themes.forEach((theme, index) => {
           const option = document.createElement('option');
           option.value = theme;
           option.textContent = theme;
+          // 如果是第一个主题，设置为选中
+          if (index === 0) {
+            option.selected = true;
+          }
           elements.counter.select.appendChild(option);
         });
 
